@@ -320,6 +320,20 @@ function runDigestNow() {
  * @return {string} Cleaned text
  */
 function cleanText(text) {
-  // Replace non-printable characters and unknown character symbols with an empty string
-  return text.replace(/[\uFFFD\u0000-\u001F\u007F-\u009F]/g, '');
+  if (!text) return '';
+  
+  return text
+    // Remove specific problematic Unicode ranges
+    .replace(/[\uFFFD\u0000-\u001F\u007F-\u009F]/g, '')
+    // Remove unmatched surrogate pairs
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g, '')
+    // Replace multiple spaces with a single space
+    .replace(/\s+/g, ' ')
+    // Remove square boxes and unknown character symbols
+    .replace(/[\u25A0-\u25FF\u2700-\u27BF\uFE00-\uFE0F]/g, '')
+    // Remove specific emoji ranges
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    // Clean up any remaining non-printable or control characters
+    .replace(/[^\x20-\x7E\u00A0-\u00FF\u0100-\u017F\u0180-\u024F\u2000-\u206F]/g, '')
+    .trim();
 }
